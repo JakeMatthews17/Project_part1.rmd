@@ -1,0 +1,58 @@
+---
+title: "Final Project Part 1"
+author: "Jake Matthews"
+date: "10/16/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Based on the original article "How Baby Boomers Get High"  
+### by Anna Maria Barry-Jester and Andrew Flowers  
+
+Link: https://fivethirtyeight.com/features/how-baby-boomers-get-high/ 
+
+
+# The *drug_use* Data in Context
+
+The *drug_use* dataframe in the fivethirtyeight package contains survey data about the drug using tendencies of Americans ages 12-65+ in the year 2012. This includes both a percentage of each group who has taken it, and the frequency of use. The article linked above looks specifically at the Baby Boomers surveyed (Ages 50-64) and the percentage who responded that they had used each drug. The article is interested in the drug habits of Baby Boomers at their older ages because it is reportedly high than that of previous generations at similar ages. While early on it sites a Wall Street Journal article claiming the reason is a "Woodstock mentality", It also provides more speculative reasons for the increased illicit drug use.
+
+
+```{r message=FALSE,warning=FALSE}
+library(dplyr)
+library(tidyverse)
+library(fivethirtyeight)
+
+BB_drug_use<-drug_use%>%
+  filter(age=='50-64')%>%
+  select('marijuana_use','cocaine_use','crack_use','heroin_use',
+         'hallucinogen_use','inhalant_use','pain_releiver_use','oxycontin_use',
+         'tranquilizer_use','stimulant_use','meth_use','sedative_use')%>%
+  gather(key='drug',value='pctuse')%>%
+  mutate(drug=sub(pattern = '_use',replacement = "",drug))%>%
+  mutate(drug=sub(pattern = '_',replacement = " ",drug))%>%
+  arrange(desc(pctuse))
+
+
+drug_graph<-ggplot(data=BB_drug_use,aes(x=pctuse,y=reorder(str_to_title(drug),pctuse)))+
+  geom_bar(stat="identity",fill="#ff2700")+
+  geom_text(aes(label=pctuse),hjust=-0.2)+
+  ggtitle("Percentage of Americans aged 50-64 who said in a 2012 survey \nthat they had used the following drugs in the past year")+
+  labs(y="",x="")+
+  theme( panel.background = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.line=element_blank(),
+  axis.ticks.y=element_blank(),
+  axis.ticks.x=element_blank(),
+  axis.text.x=element_blank())
+```
+
+# My Data Wrangling and Visualization Statements
+
+The first step to creating the chart you see below was to filter the *drug_use* package to only list the specified age group (50-64), and also select the columns for the perecentage of people who responded they had used the given drug. After this we gathered the data into two columns and subtracted '_use' from each drug listed to more easily fit this data set into ggplot. Once our data was ready to be plotted I created a ggplot in which *pctuse* (percentage use) was our x variable and our y variable was *drug* in the order of *pctuse*. I added a geom_bar with the appropriate color and also included text at the end of each bar specifying the exact percentage. Finally, I added the title, and replicated the theme which was a white background with no axes or labels other than the drug names themselves. The graph below is a combination of these data wrangling and visual statements and is meant to replicate the graph of the article listed above.
+
+```{r}
+drug_graph
+```
